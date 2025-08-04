@@ -18,7 +18,7 @@ const settingsPath = path.resolve(__dirname, '../settings.json');
 const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
 
 
-async function CreateBizEmbed(guildName) {
+async function CreateEmbed(guildName) {
     let prio = '🟡 Medium';
     let timeKey = new Date().getHours() === 18 ? "19:05" : new Date().getHours() === 0 ? "01:05" : "???";
     let timeKeyTwo = new Date().getHours() === 18 ? "18:50" : new Date().getHours() === 0 ? "00:50" : "???";
@@ -75,7 +75,7 @@ module.exports = function startBizwarHandler(client) {
             try {
                 const channel = await client.channels.fetch(ev_ank);
                 if (channel && channel.isTextBased()) {
-                    const components = await CreateBizEmbed(channel.guild.name);
+                    const components = await CreateEmbed(channel.guild.name);
 
                     const message = await channel.send({
                         components: components,

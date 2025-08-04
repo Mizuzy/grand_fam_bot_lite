@@ -18,7 +18,7 @@ const settingsPath = path.resolve(__dirname, '../settings.json');
 const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
 
 
-async function CreateFortyEmbed(guildName) {
+async function CreateEmbed(guildName) {
     let prio = '🟡 Medium';
     let map = '/';
     let imgLink = null;
@@ -116,42 +116,36 @@ async function CreateFortyEmbed(guildName) {
 module.exports = function startfortyHandler(client) {
     cron.schedule("30 * * * *", async () => {
 
-        const [rows] = await db.execute(
-            "SELECT `setconfig` FROM config WHERE config = 'send_forty'"
-        );
-
-        if (rows.length > 0 && rows[0].setconfig === 1) {
-
-
-
-        try {
-            const channel = await client.channels.fetch(ev_ank);
-            if (channel && channel.isTextBased()) {
-                const components = await CreateFortyEmbed(channel.guild.name);
-
-                const message = await channel.send({
-                    components: components,
-                    flags: MessageFlags.IsComponentsV2,
-                });
-
-                // Lösche die Nachricht nach 1 Minute
-                setTimeout(async () => {
+                const send = settings.send_events.send_forty;
+        
+                // Accept both string and number
+                if (send = true) {
                     try {
-                        await message.delete();
-                    } catch (deleteErr) {
-                        console.error("❌ Fehler beim Löschen der Nachricht:", deleteErr);
+                        const channel = await client.channels.fetch(ev_ank);
+                        if (channel && channel.isTextBased()) {
+                            const components = await CreateEmbed(channel.guild.name);
+        
+                            const message = await channel.send({
+                                components: components,
+                                flags: MessageFlags.IsComponentsV2,
+                            });
+        
+                            setTimeout(async () => {
+                                try {
+                                    await message.delete();
+                                } catch (deleteErr) {
+                                    console.error("❌ Fehler beim Löschen der Nachricht:", deleteErr);
+                                }
+                            }, 1200 * 1000);
+        
+                        } else {
+                            console.warn('⚠️ Channel ist nicht textbasiert oder nicht gefunden');
+                        }
+                    } catch (err) {
+                        console.error('❌ Fehler im Bizwar Cronjob:', err);
                     }
-                }, 1200 * 1000);
-
-            } else {
-                console.warn('⚠️ Channel ist nicht textbasiert oder nicht gefunden');
-            }
-        } catch (err) {
-            console.error('❌ Fehler im Bizwar Cronjob:', err);
-        }
-
-        } else {
-            console.log('Kein Eintrag gefunden');
-        }
-    });
+                } else {
+                    console.log('Kein Eintrag gefunden oder send_bizwar ist nicht 1');
+                }
+            });
 };

@@ -61,7 +61,7 @@ async function CreateFortyEmbed(guildName) {
     return [baseEmbed];
 }
 
-module.exports = function startWaffenfabrikHandler(client) {
+module.exports = function CreateEmbed(client) {
     cron.schedule("10 7 * * *", async () => {
 
         const [rows] = await db.execute(
@@ -146,25 +146,20 @@ module.exports = function startWaffenfabrikHandler(client) {
 
     cron.schedule("10 22 * * *", async () => {
 
-        const [rows] = await db.execute(
-            "SELECT `setconfig` FROM config WHERE config = 'send_waffenfabrik'"
-        );
+        const send = settings.send_events.send_waffenfabrik;
 
-        if (rows.length > 0 && rows[0].setconfig === 1) {
-
-
-
+        // Accept both string and number
+        if (send = true) {
             try {
                 const channel = await client.channels.fetch(ev_ank);
                 if (channel && channel.isTextBased()) {
-                    const components = await CreateFortyEmbed(channel.guild.name);
+                    const components = await CreateEmbed(channel.guild.name);
 
                     const message = await channel.send({
                         components: components,
                         flags: MessageFlags.IsComponentsV2,
                     });
 
-                    // Lösche die Nachricht nach 1 Minute
                     setTimeout(async () => {
                         try {
                             await message.delete();
@@ -179,9 +174,8 @@ module.exports = function startWaffenfabrikHandler(client) {
             } catch (err) {
                 console.error('❌ Fehler im Bizwar Cronjob:', err);
             }
-
         } else {
-            console.log('Kein Eintrag gefunden');
+            console.log('Kein Eintrag gefunden oder send_bizwar ist nicht 1');
         }
     });
 

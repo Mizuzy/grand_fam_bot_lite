@@ -18,7 +18,7 @@ const settingsPath = path.resolve(__dirname, '../settings.json');
 const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
 
 
-async function CreateFortyEmbed(guildName) {
+async function CreateEmbed(guildName) {
     let prio = '🟡 Medium';
     let map = '/';
     let imgLink = null;
@@ -64,25 +64,20 @@ async function CreateFortyEmbed(guildName) {
 module.exports = function startCayoHandler(client) {
     cron.schedule("25 17 * * *", async () => {
 
-        const [rows] = await db.execute(
-            "SELECT `setconfig` FROM config WHERE config = 'send_cayo'"
-        );
+const send = settings.send_events.send_cayo;
 
-        if (rows.length > 0 && rows[0].setconfig === 1) {
-
-
-
+        // Accept both string and number
+        if (send = true) {
             try {
                 const channel = await client.channels.fetch(ev_ank);
                 if (channel && channel.isTextBased()) {
-                    const components = await CreateFortyEmbed(channel.guild.name);
+                    const components = await CreateEmbed(channel.guild.name);
 
                     const message = await channel.send({
                         components: components,
                         flags: MessageFlags.IsComponentsV2,
                     });
 
-                    // Lösche die Nachricht nach 1 Minute
                     setTimeout(async () => {
                         try {
                             await message.delete();
@@ -97,9 +92,8 @@ module.exports = function startCayoHandler(client) {
             } catch (err) {
                 console.error('❌ Fehler im Bizwar Cronjob:', err);
             }
-
         } else {
-            console.log('Kein Eintrag gefunden');
+            console.log('Kein Eintrag gefunden oder send_bizwar ist nicht 1');
         }
     });
 };
