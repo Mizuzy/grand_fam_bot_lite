@@ -23,7 +23,6 @@ const startCayoHandler = require('./handler/cayoHandler.js');
 const startEkzHandler = require('./handler/ekzHandler.js');
 const startHotelHandler = require('./handler/hotelHandler.js');
 const startWeinbergeHandler = require('./handler/weinbergeHandler.js');
-const startAnkuendigungsHandler = require('./handler/ankuendigungHandler.js');
 
 
 // Weitere Handler manuell hier hinzufügen...
@@ -41,25 +40,19 @@ const modalHandlers = {
 };
 
 // ----------- Command-Importe ---------------
-const testCommand = require('./commands/test.js');
-const bizConfigCommand = require('./commands/bizconfig.js');
-const fortyConfigCommand = require('./commands/fortyconfig.js');
+
 const configCommand = require('./commands/config.js');
 
 
 // Weitere Commands manuell hier hinzufügen...
 
 const commandList = [
-  testCommand.data,
-  bizConfigCommand.data,
-  fortyConfigCommand.data,
+
   configCommand.data,
 ];
 
 const commandMap = {
-  'test': testCommand,
-  'bizconfig': bizConfigCommand,
-  'forty_config': fortyConfigCommand,
+
   'config': configCommand,
 
 };
@@ -114,11 +107,6 @@ client.once('ready', async () => {
   console.log('HotelHandler gestartet');
   startWeinbergeHandler(client);
   console.log('WeinbergeHandler gestartet');
-
-  console.log(' ');
-  console.log('Rest: ')
-  startAnkuendigungsHandler(client);
-  console.log('AnkuendigungsHandler gestartet');
 
 
   const activities = [

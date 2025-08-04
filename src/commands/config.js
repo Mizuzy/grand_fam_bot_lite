@@ -1,5 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 const db = require('../utils/mysql');
+const fs = require('fs');
+const path = require('path');
 
 const configs = [
     { name: 'send_forty', value: 'send_forty' },
@@ -10,11 +12,12 @@ const configs = [
     { name: 'send_cayo', value: 'send_cayo' },
     { name: 'send_ekz', value: 'send_ekz' },
     { name: 'send_hotel', value: 'send_hotel' },
-    { name: 'E-send_weinberge', value: 'E-send_weinberge' },];
+    { name: 'E-send_weinberge', value: 'E-send_weinberge' },
+];
 
 const values = [
-    { name: '0', value: '0' },
-    { name: '1', value: '1' },
+    { name: 'true', value: 'true' },
+    { name: 'false', value: 'false' },
 ];
 
 module.exports = {
@@ -23,18 +26,18 @@ module.exports = {
         .setDescription('Setzt Map und/oder Prio für Forty')
         .addStringOption(option =>
             option.setName('config')
-                .setDescription('Wähle die Config (z.B. Map)')
+                .setDescription('Wähle die Config')
                 .setRequired(true)
                 .addChoices(...configs)
         )
         .addStringOption(option =>
             option.setName('wert')
-                .setDescription('Wähle die Priorität (Low/Medium/High)')
+                .setDescription('Wähle den Wert')
                 .setRequired(true)
                 .addChoices(...values)
         ),
 
-    async execute(interaction) {
+        async execute(interaction) {
         const selectedConfig = interaction.options.getString('config');
         const selectedValue = interaction.options.getString('wert');
 
@@ -47,14 +50,19 @@ module.exports = {
 
         try {
             if (selectedConfig && selectedValue) {
-                const selectedValue = interaction.options.getString('wert');
-                const intValue = parseInt(selectedValue, 10); // String zu Integer konvertieren
+                // Convert value to boolean
+                const boolValue = selectedValue === 'true';
 
-                await db.execute(
-                    "UPDATE config SET setconfig = ? WHERE config = ?",
-                    [intValue, selectedConfig]
-                );
+                // Read settings.json
+                const settingsPath = path.join(__dirname, '..//settings.json');
+                const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
 
+                // Update send_events value
+                if (!settings.send_events) settings.send_events = {};
+                settings.send_events[selectedConfig] = boolValue;
+
+                // Write back to settings.json
+                fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), 'utf8');
             }
 
             await interaction.reply({
@@ -66,7 +74,7 @@ module.exports = {
             });
 
         } catch (err) {
-            console.error('❌ Fehler beim Zugriff auf die Datenbank:', err);
+            console.error('❌ Fehler beim Zugriff auf settings.json:', err);
             await interaction.reply({
                 content: '❌ Interner Fehler beim Speichern der Daten.',
                 ephemeral: true,
