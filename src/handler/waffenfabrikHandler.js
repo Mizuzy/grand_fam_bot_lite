@@ -8,7 +8,6 @@ const {
     MediaGalleryBuilder,
     MediaGalleryItemBuilder
 } = require('discord.js');
-const db = require('../utils/mysql');
 const cron = require("node-cron");
 const fs = require("fs");
 const path = require("path");
@@ -29,7 +28,7 @@ async function CreateFortyEmbed(guildName) {
     const baseEmbed = new ContainerBuilder()
         .setAccentColor(5831679)
         .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(`# RPTicket Farbrik ${timeKey}:20`),
+            new TextDisplayBuilder().setContent(`# Waffenfabrik Farbrik ${timeKey}:20`),
         )
         .addSeparatorComponents(
             new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true),
@@ -62,104 +61,35 @@ async function CreateFortyEmbed(guildName) {
 }
 
 module.exports = function CreateEmbed(client) {
+
     cron.schedule("10 7 * * *", async () => {
-
-        const [rows] = await db.execute(
-            "SELECT `setconfig` FROM config WHERE config = 'send_waffenfabrik'"
-        );
-
-        if (rows.length > 0 && rows[0].setconfig === 1) {
-
-
-
-            try {
-                const channel = await client.channels.fetch(ev_ank);
-                if (channel && channel.isTextBased()) {
-                    const components = await CreateFortyEmbed(channel.guild.name);
-
-                    const message = await channel.send({
-                        components: components,
-                        flags: MessageFlags.IsComponentsV2,
-                    });
-
-                    // Lösche die Nachricht nach 1 Minute
-                    setTimeout(async () => {
-                        try {
-                            await message.delete();
-                        } catch (deleteErr) {
-                            console.error("❌ Fehler beim Löschen der Nachricht:", deleteErr);
-                        }
-                    }, 1200 * 1000);
-
-                } else {
-                    console.warn('⚠️ Channel ist nicht textbasiert oder nicht gefunden');
-                }
-            } catch (err) {
-                console.error('❌ Fehler im Bizwar Cronjob:', err);
-            }
-
-        } else {
-            console.log('Kein Eintrag gefunden');
-        }
+        await handleBizwar(client);
     });
-
     cron.schedule("10 10 * * *", async () => {
-
-        const [rows] = await db.execute(
-            "SELECT `setconfig` FROM config WHERE config = 'send_waffenfabrik'"
-        );
-
-        if (rows.length > 0 && rows[0].setconfig === 1) {
-
-
-
-            try {
-                const channel = await client.channels.fetch(ev_ank);
-                if (channel && channel.isTextBased()) {
-                    const components = await CreateFortyEmbed(channel.guild.name);
-
-                    const message = await channel.send({
-                        components: components,
-                        flags: MessageFlags.IsComponentsV2,
-                    });
-
-                    // Lösche die Nachricht nach 1 Minute
-                    setTimeout(async () => {
-                        try {
-                            await message.delete();
-                        } catch (deleteErr) {
-                            console.error("❌ Fehler beim Löschen der Nachricht:", deleteErr);
-                        }
-                    }, 1200 * 1000);
-
-                } else {
-                    console.warn('⚠️ Channel ist nicht textbasiert oder nicht gefunden');
-                }
-            } catch (err) {
-                console.error('❌ Fehler im Bizwar Cronjob:', err);
-            }
-
-        } else {
-            console.log('Kein Eintrag gefunden');
-        }
+        await handleBizwar(client);
+    });
+    cron.schedule("10 22 * * *", async () => {
+        await handleBizwar(client);
     });
 
-    cron.schedule("10 22 * * *", async () => {
-
+    async function handleBizwar(client) {
         const send = settings.send_events.send_waffenfabrik;
 
-        // Accept both string and number
-        if (send = true) {
+        if (send === true) {
+
+
+
             try {
                 const channel = await client.channels.fetch(ev_ank);
                 if (channel && channel.isTextBased()) {
-                    const components = await CreateEmbed(channel.guild.name);
+                    const components = await CreateFortyEmbed(channel.guild.name);
 
                     const message = await channel.send({
                         components: components,
                         flags: MessageFlags.IsComponentsV2,
                     });
 
+                    // Lösche die Nachricht nach 1 Minute
                     setTimeout(async () => {
                         try {
                             await message.delete();
@@ -172,11 +102,12 @@ module.exports = function CreateEmbed(client) {
                     console.warn('⚠️ Channel ist nicht textbasiert oder nicht gefunden');
                 }
             } catch (err) {
-                console.error('❌ Fehler im Bizwar Cronjob:', err);
+                console.error('❌ Fehler im Waffenfabrik Cronjob:', err);
             }
+
         } else {
-            console.log('Kein Eintrag gefunden oder send_bizwar ist nicht 1');
+             console.log('Kein Eintrag gefunden oder send_waffenfabrik ist nicht 1');
         }
-    });
+    }
 
 };

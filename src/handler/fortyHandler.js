@@ -8,7 +8,6 @@ const {
     MediaGalleryBuilder,
     MediaGalleryItemBuilder
 } = require('discord.js');
-const db = require('../utils/mysql');
 const cron = require("node-cron");
 const fs = require("fs");
 const path = require("path");
@@ -24,38 +23,6 @@ async function CreateEmbed(guildName) {
     let imgLink = null;
     let timeKey = new Date().getHours();
 
-    try {
-        const [rows] = await db.execute(
-            "SELECT * FROM events WHERE Event = '40' LIMIT 1"
-        );
-
-        if (rows.length > 0) {
-            const event = rows[0];
-            prio = event.Prio || prio;
-
-            if (event.MapID) {
-                const [mapRows] = await db.execute(
-                    "SELECT MAP, IMG FROM maps WHERE ID = ? LIMIT 1",
-                    [event.MapID]
-                );
-
-                if (mapRows.length > 0) {
-                    map = mapRows[0].MAP;
-                    imgLink = mapRows[0].IMG;
-                }
-            }
-
-            // Reset nach Erstellung
-            await db.execute(
-                "UPDATE events SET Prio = '🟡 Medium', MapID = NULL WHERE ID = ?",
-                [event.ID]
-            );
-
-        }
-
-    } catch (err) {
-        console.error('❌ Fehler beim DB-Zugriff:', err);
-    }
 
     const baseEmbed = new ContainerBuilder()
         .setAccentColor(5831679)
@@ -119,7 +86,7 @@ module.exports = function startfortyHandler(client) {
                 const send = settings.send_events.send_forty;
         
                 // Accept both string and number
-                if (send = true) {
+                if (send === true) {
                     try {
                         const channel = await client.channels.fetch(ev_ank);
                         if (channel && channel.isTextBased()) {

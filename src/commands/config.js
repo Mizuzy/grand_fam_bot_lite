@@ -1,5 +1,4 @@
 const { SlashCommandBuilder } = require('discord.js');
-const db = require('../utils/mysql');
 const fs = require('fs');
 const path = require('path');
 
@@ -12,7 +11,7 @@ const configs = [
     { name: 'send_cayo', value: 'send_cayo' },
     { name: 'send_ekz', value: 'send_ekz' },
     { name: 'send_hotel', value: 'send_hotel' },
-    { name: 'E-send_weinberge', value: 'E-send_weinberge' },
+    { name: 'send_weinberge', value: 'send_weinberge' },
 ];
 
 const values = [

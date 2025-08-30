@@ -8,7 +8,6 @@ const {
     MediaGalleryBuilder,
     MediaGalleryItemBuilder
 } = require('discord.js');
-const db = require('../utils/mysql');
 const cron = require("node-cron");
 const fs = require("fs");
 const path = require("path");
@@ -71,7 +70,7 @@ module.exports = function startBizwarHandler(client) {
         const send = settings.send_events.send_bizwar;
 
         // Accept both string and number
-        if (send = true) {
+        if (send === true) {
             try {
                 const channel = await client.channels.fetch(ev_ank);
                 if (channel && channel.isTextBased()) {

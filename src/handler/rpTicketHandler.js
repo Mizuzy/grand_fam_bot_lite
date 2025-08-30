@@ -8,7 +8,6 @@ const {
     MediaGalleryBuilder,
     MediaGalleryItemBuilder
 } = require('discord.js');
-const db = require('../utils/mysql');
 const cron = require("node-cron");
 const fs = require("fs");
 const path = require("path");
@@ -62,94 +61,23 @@ async function CreateEmbed(guildName) {
 }
 
 module.exports = function startRpTicketwarHandler(client) {
+
     cron.schedule("20 10 * * *", async () => {
-
-        const [rows] = await db.execute(
-            "SELECT `setconfig` FROM config WHERE config = 'send_RPTicket'"
-        );
-
-        if (rows.length > 0 && rows[0].setconfig === 1) {
-
-
-
-            try {
-                const channel = await client.channels.fetch(ev_ank);
-                if (channel && channel.isTextBased()) {
-                    const components = await CreateFortyEmbed(channel.guild.name);
-
-                    const message = await channel.send({
-                        components: components,
-                        flags: MessageFlags.IsComponentsV2,
-                    });
-
-                    // Lösche die Nachricht nach 1 Minute
-                    setTimeout(async () => {
-                        try {
-                            await message.delete();
-                        } catch (deleteErr) {
-                            console.error("❌ Fehler beim Löschen der Nachricht:", deleteErr);
-                        }
-                    }, 2400 * 1000);
-
-                } else {
-                    console.warn('⚠️ Channel ist nicht textbasiert oder nicht gefunden');
-                }
-            } catch (err) {
-                console.error('❌ Fehler im Bizwar Cronjob:', err);
-            }
-
-        } else {
-            console.log('Kein Eintrag gefunden');
-        }
+        await handleBizwar(client);
     });
-
-    cron.schedule("20 16 * * *", async () => {
-
-        const [rows] = await db.execute(
-            "SELECT `setconfig` FROM config WHERE config = 'send_RPTicket'"
-        );
-
-        if (rows.length > 0 && rows[0].setconfig === 1) {
-
-
-
-            try {
-                const channel = await client.channels.fetch(ev_ank);
-                if (channel && channel.isTextBased()) {
-                    const components = await CreateFortyEmbed(channel.guild.name);
-
-                    const message = await channel.send({
-                        components: components,
-                        flags: MessageFlags.IsComponentsV2,
-                    });
-
-                    // Lösche die Nachricht nach 1 Minute
-                    setTimeout(async () => {
-                        try {
-                            await message.delete();
-                        } catch (deleteErr) {
-                            console.error("❌ Fehler beim Löschen der Nachricht:", deleteErr);
-                        }
-                    }, 2400 * 1000);
-
-                } else {
-                    console.warn('⚠️ Channel ist nicht textbasiert oder nicht gefunden');
-                }
-            } catch (err) {
-                console.error('❌ Fehler im Bizwar Cronjob:', err);
-            }
-
-        } else {
-            console.log('Kein Eintrag gefunden');
-        }
-    });
-
     cron.schedule("20 22 * * *", async () => {
+        await handleBizwar(client);
+    });
+    cron.schedule("20 16 * * *", async () => {
+        await handleBizwar(client);
+    });
 
-        const send = settings.send_events.send_RPTicket;
+
+    async function handleBizwar(client) {
+        const send = settings.send_events.send_bizwar;
 
         // Accept both string and number
-        if (send = true) {
+        if (send === true) {
             try {
                 const channel = await client.channels.fetch(ev_ank);
                 if (channel && channel.isTextBased()) {
@@ -160,13 +88,14 @@ module.exports = function startRpTicketwarHandler(client) {
                         flags: MessageFlags.IsComponentsV2,
                     });
 
+                    // Lösche die Nachricht nach 1 Minute
                     setTimeout(async () => {
                         try {
                             await message.delete();
                         } catch (deleteErr) {
                             console.error("❌ Fehler beim Löschen der Nachricht:", deleteErr);
                         }
-                    }, 1200 * 1000);
+                    }, 2400 * 1000);
 
                 } else {
                     console.warn('⚠️ Channel ist nicht textbasiert oder nicht gefunden');
@@ -174,8 +103,11 @@ module.exports = function startRpTicketwarHandler(client) {
             } catch (err) {
                 console.error('❌ Fehler im Bizwar Cronjob:', err);
             }
+
         } else {
-            console.log('Kein Eintrag gefunden oder send_bizwar ist nicht 1');
+            console.log('Kein Eintrag gefunden');
         }
-    });
+    }
+
 };
+
